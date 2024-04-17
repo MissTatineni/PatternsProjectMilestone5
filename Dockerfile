@@ -1,11 +1,7 @@
-# First stage: Build the Maven project
-FROM maven:3.8.2-jdk-11 AS build
-WORKDIR /app
+[5:02 PM] Beeram,Harini
+FROM maven:3-eclipse-temurin-17 AS build
 COPY . .
-RUN mvn clean package -DskipTests
-
-# Second stage: Run the Spring Boot application
-FROM openjdk:11-jdk-slim
-WORKDIR /app
-COPY --from=build /app/target/DogsManagementSystem-0.0.1-SNAPSHOT.jar DogsManagementSystem.jar
+RUN mvn clean package -Pprod -DskipTests
+FROM eclipse-temurin:17-alpine
+COPY --from=build /target/DogsManagementSystem-0.0.1-SNAPSHOT.jar DogsManagementSystem.jar
 CMD ["java", "-jar", "DogsManagementSystem.jar"]
