@@ -1,11 +1,18 @@
-# Stage 1: Build the application
-FROM maven:3.8.2-jdk-17 AS build
+FROM maven:3.8.2-jdk-11 AS base
+
+# Install OpenJDK 17
+RUN apt-get update && apt-get install -y openjdk-17-jdk
+
+FROM base AS build
+
+# Your build steps here
+
+# Example:
 WORKDIR /app
 COPY . .
-RUN mvn clean package -DskipTests
+RUN mvn clean package
 
-# Stage 2: Create the final image
-FROM openjdk:17-jdk-slim
-WORKDIR /app
-COPY --from=build /app/target/DogsManagementSystem-0.0.1-SNAPSHOT.jar DogsManagementSystem.jar
-CMD ["java", "-jar", "DogsManagementSystem.jar"]
+# Final stage
+FROM openjdk:17-jdk-alpine
+COPY --from=build /app/target/your-application.jar /app/your-application.jar
+CMD ["java", "-jar", "/app/your-application.jar"]
