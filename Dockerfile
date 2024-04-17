@@ -1,18 +1,11 @@
-FROM maven:3.8.2-jdk-11 AS base
-
-# Install OpenJDK 17
-RUN apt-get update && apt-get install -y openjdk-17-jdk
-
-FROM base AS build
-
-# Your build steps here
-
-# Example:
+# First stage: Build the Maven project
+FROM maven:3.8.2-jdk-11 AS build
 WORKDIR /app
 COPY . .
-RUN mvn clean package
+RUN mvn clean package -DskipTests
 
-# Final stage
-FROM openjdk:17-jdk-alpine
-COPY --from=build /app/target/your-application.jar /app/your-application.jar
-CMD ["java", "-jar", "/app/your-application.jar"]
+# Second stage: Run the Spring Boot application
+FROM openjdk:11-jdk-slim
+WORKDIR /app
+COPY --from=build /app/target/DogsManagementSystem-0.0.1-SNAPSHOT.jar DogsManagementSystem.jar
+CMD ["java", "-jar", "DogsManagementSystem.jar"]
